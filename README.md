@@ -10,7 +10,7 @@ This is what I use:
 - Scrapy python librarie
 - xpath expression language
 
-The result is a json file that can be used to generate a data frame and fill a data base. The jason file is made up of:
+The result is a json file that can be used to generate a data frame and fill a data base. The json file is made up of:
 
 - bike reference
     - bike/product link
