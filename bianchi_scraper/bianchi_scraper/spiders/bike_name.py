@@ -38,58 +38,86 @@ class BikeNameSpider (scrapy.Spider):
         #Navigate through each link
         for overall_link in bikes_link_subcategories:
             
-            yield response.follow(overall_link, callback=self.parse_link2, cb_kwargs={'url': response.urljoin(overall_link)})
+            yield response.follow(overall_link, callback=self.parse_link, cb_kwargs={'url': response.urljoin(overall_link)})
 
-            #xpath_link_product = '//div[@class="shop-now"]/a/text()'
-            #link_product = response.xpath(xpath_link_product).getall()
-            #print('***'*10)
-            #print(link_product)
 
-#            for link in link_product:
-#                yield response.follow(link, callback=self.parse_link3, cb_kwargs={'url': response.urljoin(link)})
-
-    def parse_link2 (self, response, **kwargs):
+    def parse_link(self, response, **kwargs):
         link = kwargs['url']
 
         xpath_link_product = '//div[@class="shop-now"]/a/@href'
         link_product = response.xpath(xpath_link_product).getall()
 
         for link in link_product:
-            yield response.follow(link, callback=self.parse_link3, cb_kwargs={'url': response.urljoin(link)})
+            yield response.follow(link, callback=self.parse_link_products, cb_kwargs={'url': response.urljoin(link)})
 
-    def parse_link3( self, response, **kwargs):
+    def parse_link_products(self, response, **kwargs):
 
-        link = kwargs['url']
+        #link = kwargs['url']
+
+        bike_name_xpath = '//h1[@class="page-title"]/span[2]/text()'
+        bike_name = response.xpath(bike_name_xpath).get()
+
+        bike_reference_xpath ='//span[@class="page-subtitle"]/span/text()'
+        bike_reference = response.xpath(bike_reference_xpath).get()
+
+        bike_modality_xpath = '//div[@class="breadcrumbs-product"]//li/a/text()'
+        bike_paths = response.xpath(bike_modality_xpath).getall()
+
+        if len(bike_paths) == 5:
+            bike_modality = bike_paths[2]
+            bike_type = bike_paths[3]
+        else:
+            bike_modality = bike_paths[1]
+            bike_type = bike_paths[2]
+
+        ##Frame information
+        frame_xpath = '//ul[@class="contailer-additional-attributes"]//li[1]/ol/li[1]/span/text()'
+        frame = response.xpath(frame_xpath).get()
+
+        fork_xpath = '//ul[@class="contailer-additional-attributes"]//li[1]/ol/li[2]/span/text()'
+        fork = response.xpath(fork_xpath).get()
+
+        headset_xpath = '//ul[@class="contailer-additional-attributes"]//li[1]/ol/li[3]/span/text()'
+        headset = response.xpath(headset_xpath).get()
+
+        ##Drivetrain information
+        shifter_xpath = '//ul[@class="contailer-additional-attributes"]//li[2]/ol/li[1]/span/text()'
+        shifter = response.xpath(shifter_xpath).get()
+
+        rear_derailleur_xpath = '//ul[@class="contailer-additional-attributes"]//li[2]/ol/li[2]/span/text()'
+        rear_derailleur =  response.xpath(rear_derailleur_xpath).get()
+
+        ##Brakes information
+        brakers_xpath = '//ul[@class="contailer-additional-attributes"]//li[3]/ol/li[1]/span/text()'
+        brakers = response.xpath(brakers_xpath).get()
+
+        ##Rotor logic
+        brakes_information_xpath = '//ul[@class="contailer-additional-attributes"]//li[3]/ol/li'
+        brakes_information = response.xpath(brakes_information_xpath).getall()
+
+        if len(brakes_information) == 3:
+            rotors_xpath = '//ul[@class="contailer-additional-attributes"]//li[3]/ol/li[3]/span/text()'
+            rotors = response.xpath(rotors_xpath).get()
+        else:
+            rotors_xpath = '//ul[@class="contailer-additional-attributes"]//li[3]/ol/li[2]/span/text()'
+            rotors = response.xpath(rotors_xpath).get()
+
         yield{
-            'links': link
+            bike_name: {'link': kwargs['url'],
+                        'modality': bike_modality,
+                        'type': bike_type,
+                        'bike_reference': bike_reference,
+                        'frame': frame,
+                        'fork': fork,
+                        'headset': headset,
+                        'drivetrain': {
+                                        'shifter': shifter,
+                                        'rear': rear_derailleur,
+                                        },
+                        'brakes': {
+                                    'brakes': brakes_information,
+                                    'rotor': rotors, 
+                        }
+                        }
         }
 
-    def parse_link(self, response, **kwargs):
-        
-        link = kwargs['url']
-
-        xpath_modality = '//div[@class="third-level-hero"]/a/h6/text()'
-        modality = response.xpath(xpath_modality).get()
-
-        xpath_subcategories = '//div[@class="third-level-hero"]/h1/text()'
-        subcategories = response.xpath(xpath_subcategories).get()
-
-        xpath_bike_names = '//div[@class="col-md-6"]//h4/a/text()'
-        bike_names = response.xpath(xpath_bike_names).getall()
-
-        yield{
-            'url': link,
-            'modality': modality,
-            'subcategories': subcategories,
-            'bike_names': bike_names
-        }
-
-    #    yield {
-    #        'bike_name': bike_names
-    #    }
-
-
-    ##'//div[@class="col-12 cat-2-ground"]/a[1]/@href'    -> importante
-    ##//*[@id="main"]/div[3]/div/div[1]/a[2]/h3
-    ##//*[@id="main"]/div[3]/div/div[2]/a[2]/h3
-    ##/html/body/div[5]/div[3]/section/main/div[3]/div/div[1]
