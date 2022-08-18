@@ -115,7 +115,7 @@ class BikeNameSpider (scrapy.Spider):
                                         'rear': rear_derailleur,
                                         },
                         'brakes': {
-                                    'brakes': brakes_information,
+                                    'brakes': brakers,
                                     'rotor': rotors, 
                         }
                         }
