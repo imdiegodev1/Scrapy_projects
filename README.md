@@ -27,4 +27,5 @@ The result is a json file that can be used to generate a data frame and fill a d
         - braker
         - rotor
 
-What do you think about this little project? for any questions, please contact me at hi@imdiegui.com
+To see other learning projects and notes please follow this [link](https://imdiego.dev/projects/projects/notes).
+To see more about my please visit [my webpage](https://imdiego.dev/).
